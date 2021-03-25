@@ -1,10 +1,7 @@
 package board
 
 import (
-    "bufio"
     "fmt"
-    "os"
-    "strings"
     "strconv"
     "errors"
     "math/rand"
@@ -14,37 +11,12 @@ import (
 
 type board [10][10]int
 
-func main() {
-    game1 := board{}
-
-    placeShips(&game1)
-    printBoard(game1)
-
-    reader := bufio.NewReader(os.Stdin)
-
-    for {
-        fmt.Print("Make a move -> ")
-
-        coords, _ := reader.ReadString('\n')
-        // convert CRLF to LF
-        coords = strings.Replace(coords, "\n", "", -1)
-        x, y, err := validateCoords(coords)
-        if err != nil {
-            fmt.Print("ERROR: ")
-            fmt.Println(err)
-            continue;
-        }
-
-        registerShot(x, y,  &game1)
-        printBoard(game1)
-    }
-}
 
 func NewBoard() board {
     return board{}
 }
 
-func placeShips(board *board) {
+func PlaceShips(board *board) {
     pieces := [5]int{2,3,3,4,5}
 
     for _, piece := range pieces {
@@ -101,28 +73,28 @@ func checkLocation(x, y, pieceSize int, board *board) (int, error) {
     }
 
     // check left
-    for i := 0; i < pieceSize - 1; i++ {
+    for i := 0; i < pieceSize; i++ {
         if y - i < 0 || board[x][y - i] != 0 {
             directions[0] = -1
         }
     }
 
     // check up
-    for i := 0; i < pieceSize - 1; i++ {
+    for i := 0; i < pieceSize; i++ {
         if x - i < 0 || board[x - i][y] != 0 {
             directions[1] = -1
         }
     }   
     
     // check right
-    for i := 0; i < pieceSize - 1; i++ {
+    for i := 0; i < pieceSize; i++ {
         if y + i > 9 || board[x][y + i] != 0 {
             directions[2] = -1
         }
     }
 
     // check down
-    for i := 0; i < pieceSize - 1; i++ {
+    for i := 0; i < pieceSize; i++ {
         if x + i > 9 || board[x + i][y] != 0 {
             directions[3] = -1
         }

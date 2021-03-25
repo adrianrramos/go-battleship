@@ -7,6 +7,8 @@ import (
     "strings"
     "net/http"
     "encoding/json"
+    "html/template"
+    "path"
 
     "github.com/golang/gddo/httputil/header"
 )
@@ -84,3 +86,22 @@ func decodeJSONBody(w http.ResponseWriter, r *http.Request, dst interface{}) err
     return nil
 
 }
+
+func renderTemplate(tmplName string, w http.ResponseWriter, data string) {
+    fp := path.Join("templates", tmplName + ".html")
+    tmpl, err := template.ParseFiles(fp)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    if err := tmpl.Execute(w, data); err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+    }
+}
+
+func encodeJSONResponse(w http.ResponseWriter, body interface{}) {
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(body)
+}
+

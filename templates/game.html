@@ -1,0 +1,30 @@
+<html>
+    <head>
+        <title>BATTLESHIP</title>
+    </head>
+    <body>
+        <h1>BATTLE SHIP</h1>
+
+        <div class="board__container">
+        </div>
+    </body>
+    <script >
+        var session_id = {{.}};
+        var url = "http://localhost:3001/game/" + session_id
+        
+        function load() {
+            fetch(url)
+                .then(function(res) { 
+                    return res.json() 
+                })
+                .then(function(data) { 
+                    console.log(data) 
+                })
+                .catch(function(err) {
+                    console.error(err)
+                })
+        }
+
+        load()
+    </script>
+</html>

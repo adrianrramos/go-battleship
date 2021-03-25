@@ -3,9 +3,14 @@ package main
 import (
     "errors"
     "log"
-    "encoding/json"
     "net/http"
+    "strings"
+    "battleship/board"
+
+    "github.com/google/uuid"
 )
+
+var games map[string]string
 
 type PostBody  struct {
     Message string
@@ -13,17 +18,17 @@ type PostBody  struct {
     Title string
 }
 
+func init() {
+    games = make(map[string]string)
+}
+
 func test(w http.ResponseWriter, r *http.Request) {
     switch r.Method {
         case "GET":
-            log.Println("Incoming request from", r.RemoteAddr)
-            w.Header().Set("Content-Type", "application/json")
-
             body := make(map[string]string) 
             body["message"] = "hello joe"
-
-            json.NewEncoder(w).Encode(body)
-
+            
+            encodeJSONResponse(w, body)
         case "POST":
             var p PostBody
             
@@ -45,4 +50,29 @@ func test(w http.ResponseWriter, r *http.Request) {
     }
 }
 
+func gameHandler(w http.ResponseWriter, r *http.Request) {
+    session_id := strings.TrimPrefix(r.URL.Path, "/game/")
+    
+    switch {
+        case session_id != "":
+            body := make(map[string]string) 
+            body["message"] =  games[session_id]
 
+            encodeJSONResponse(w, body)
+        case session_id == "":
+            encodeJSONResponse(w, games)
+        default:
+            return
+    }
+}
+
+func createGame() string {
+    session_id := uuid.New().String()[:7]
+
+    game_board := board.NewBoard()
+    board.PlaceShips(&game_board)
+    log.Println(game_board)
+
+    games[session_id] = "This is a game with ID: " + session_id
+    return session_id
+}

@@ -2,24 +2,22 @@ package main
 
 import (
 //    "fmt"
-    "log"
-    "html/template"
+//    "log"
+    "strings"
     "net/http"
-    "path"
 )
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-    log.Println("Incoming request from: ", r.RemoteAddr)
-    fp := path.Join("templates", "index.html")
-    tmpl, err := template.ParseFiles(fp)
-    if err != nil {
-                http.Error(w, err.Error(), http.StatusInternalServerError)
-                        return
-                            
+    renderTemplate("index", w, "")
+}
+
+func sessionHandler(w http.ResponseWriter, r *http.Request) {
+    session_id := strings.TrimPrefix(r.URL.Path, "/game/")
+    if session_id == "new" {
+        // generate new game 
+        session_id = createGame()
+        http.Redirect(w, r, "/game/"+session_id, 301)
     }
 
-    if err := tmpl.Execute(w, ""); err != nil {
-                http.Error(w, err.Error(), http.StatusInternalServerError)
-                    
-    }
+    renderTemplate("game", w, session_id)
 }
