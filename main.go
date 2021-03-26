@@ -16,11 +16,10 @@ func main () {
     c := cors.New(cors.Options{
         AllowedOrigins: []string{"http://localhost:3000"},
         AllowCredentials: true,
-        Debug: true,
+        Debug: false,
     })
 
     apiServer := http.NewServeMux()
-    apiServer.HandleFunc("/test", test)
     apiServer.HandleFunc("/game/", gameHandler)
     go func () {
         port := ":3001"

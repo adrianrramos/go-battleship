@@ -9,14 +9,14 @@ import (
 ) 
 
 
-type board [10][10]int
+type Board [10][10]int
 
 
-func NewBoard() board {
-    return board{}
+func NewBoard() Board {
+    return Board{}
 }
 
-func PlaceShips(board *board) {
+func PlaceShips(board *Board) {
     pieces := [5]int{2,3,3,4,5}
 
     for _, piece := range pieces {
@@ -36,7 +36,7 @@ func PlaceShips(board *board) {
     }
 }
 
-func placePiece(x, y, direction, pieceSize int, board *board) {
+func placePiece(x, y, direction, pieceSize int, board *Board) {
     // directions => 0: left, 1: up, 2: right, 3: down
     board[x][y] = 2
 
@@ -64,7 +64,7 @@ func placePiece(x, y, direction, pieceSize int, board *board) {
     }
 }
 
-func checkLocation(x, y, pieceSize int, board *board) (int, error) {
+func checkLocation(x, y, pieceSize int, board *Board) (int, error) {
     // directions => 0: left, 1: up, 2: right, 3: down
     directions := [4]int{0, 0, 0, 0}
 
@@ -116,11 +116,13 @@ func checkLocation(x, y, pieceSize int, board *board) (int, error) {
     return j, nil
 }
 
-func registerShot(x, y int, board *board) {
-    board[x][y] += 1
+func RegisterShot(x, y int, board *Board) {
+    if board[x][y] < 4 && board[x][y] != 1 {
+        board[x][y] += 1
+    }
 }
 
-func printBoard(board board) {
+func printBoard(board Board) {
     fmt.Println("     0 1 2 3 4 5 6 7 8 9")
     fmt.Println("--+---------------------")
 

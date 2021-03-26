@@ -2,13 +2,24 @@
     <head>
         <title>BATTLESHIP</title>
     </head>
+    <style>
+        .board__container {
+            display: grid;
+            grid-template-columns: auto auto auto auto auto auto auto auto auto auto;
+        }
+
+        .grid__cell {
+            height: 50px;
+        }
+    </style>
     <body>
         <h1>BATTLE SHIP</h1>
 
         <div class="board__container">
         </div>
+
     </body>
-    <script >
+    <script>
         var session_id = {{.}};
         var url = "http://localhost:3001/game/" + session_id
         
@@ -18,7 +29,7 @@
                     return res.json() 
                 })
                 .then(function(data) { 
-                    console.log(data) 
+                    renderGrid(data.game_board)
                 })
                 .catch(function(err) {
                     console.error(err)
@@ -26,5 +37,60 @@
         }
 
         load()
+
+        function sendCoordinates(x, y, session_id, value) {
+            if (value > 3 || value == 1) {
+                return
+            }
+
+            var data = { x: x, y: y, session_id: session_id }
+
+            fetch(url, {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(function(res) {
+                return res.json()
+            })
+            .then(function(data) {
+                renderGrid(data.game_board)
+            })
+            .catch(function(err) {
+                console.error(err)
+            })
+        }
+
+        const grid = document.querySelector('.board__container')
+
+        function renderGrid(gridData) {
+            grid.innerHTML = ""
+
+            for (var i=0; i < gridData.length; i++) {
+                for (var j=0; j < gridData.length; j++) {
+                    createCellElement(i, j, session_id, gridData[i][j])
+                }
+            }
+        }
+
+        function createCellElement(i, j, session_id, value) {
+            var elem = document.createElement("BUTTON");
+            elem.onclick = function() { sendCoordinates(i, j, session_id, value) }
+            elem.className = "grid__cell"
+
+            if (value == 0) {
+                elem.style.backgroundColor = "blue"
+            } else if (value == 1) {
+                elem.style.backgroundColor = "white"
+            } else if (value == 2) {
+                elem.style.backgroundColor = "blue"
+            } else {
+                elem.style.backgroundColor = "red"
+            }
+
+            grid.appendChild(elem);
+        }
     </script>
 </html>

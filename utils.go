@@ -9,6 +9,7 @@ import (
     "encoding/json"
     "html/template"
     "path"
+//    "log"
 
     "github.com/golang/gddo/httputil/header"
 )
@@ -102,6 +103,7 @@ func renderTemplate(tmplName string, w http.ResponseWriter, data string) {
 
 func encodeJSONResponse(w http.ResponseWriter, body interface{}) {
     w.Header().Set("Content-Type", "application/json")
+    w.WriteHeader(http.StatusCreated)
     json.NewEncoder(w).Encode(body)
 }
 
