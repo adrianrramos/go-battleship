@@ -1,72 +1,73 @@
+//TODO describe the response for all routes [header, status, etc] ==> google why this improves performance
 package main
 
 import (
-    "errors"
-    "log"
-    "net/http"
-    "strings"
-    "battleship/board"
+	"battleship/board"
+	"errors"
+	"log"
+	"net/http"
+	"strings"
 
-    "github.com/google/uuid"
+	"github.com/google/uuid"
 )
 
 type Game struct {
-    SessionId string `json:"session_id"`
-    GameBoard board.Board `json:"game_board"`
+	SessionId string       `json:"session_id"`
+	GameBoard *board.Board `json:"game_board"`
 }
 
 var games = make(map[string]*Game)
 
-type RegisterShot struct {
-    X int `json:"x"`
-    Y int `json:"y"`
-    SessionId string `json:"session_id"`
+type ShotData struct {
+	X         int    `json:"x"`
+	Y         int    `json:"y"`
+	SessionId string `json:"session_id"`
 }
 
 func gameHandler(w http.ResponseWriter, r *http.Request) {
-    sessionId := strings.TrimPrefix(r.URL.Path, "/game/")
-    
-    switch {
-        case r.Method == "GET" && sessionId != "":
-            body := games[sessionId]
-            encodeJSONResponse(w, body)    
-            return
-        case r.Method == "GET" && sessionId == "":
-            encodeJSONResponse(w, games)
-            return
-        case r.Method == "POST":
-            var p RegisterShot
-            
-            err := decodeJSONBody(w, r, &p)
-            if err != nil {
-                var mr *malformedRequest
-                if errors.As(err, &mr) {
-                    http.Error(w, mr.msg, mr.status)
-                } else {
-                    log.Println(err.Error())
-                    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-                }
-                    return
-            }
+	sessionId := strings.TrimPrefix(r.URL.Path, "/game/")
 
-            game := games[p.SessionId]
-            board.RegisterShot(p.X, p.Y, &game.GameBoard)
+	switch r.Method {
+	case "GET":
+		if sessionId != "" {
+			body := games[sessionId]
+			encodeJSONResponse(w, body)
+		}
+		encodeJSONResponse(w, games)
+		return
+	case "POST":
+		var p ShotData
 
-            encodeJSONResponse(w, game)
-            return
-        default:
-            return
-    }
+		err := decodeJSONBody(w, r, &p)
+		if err != nil {
+			var mr *malformedRequest
+			if errors.As(err, &mr) {
+				http.Error(w, mr.msg, mr.status)
+			} else {
+				log.Println(err.Error())
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			}
+			return
+		}
+
+		game := games[p.SessionId]
+		game.GameBoard.RegisterShot(p.X, p.Y)
+
+		encodeJSONResponse(w, game)
+		return
+	default:
+		return
+	}
 
 }
 
 func createGame() string {
-    sessionId := uuid.New().String()[:7]
+	sessionId := uuid.New().String()[:7]
 
-    gameBoard := board.NewBoard()
-    board.PlaceShips(&gameBoard)
+	gameBoard := board.NewBoard()
+	gameBoard.PlaceShips()
 
-    games[sessionId] = &Game{ sessionId, gameBoard }
+	games[sessionId] = &Game{sessionId, gameBoard}
 
-    return sessionId
+	return sessionId
 }
