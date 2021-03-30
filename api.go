@@ -7,13 +7,14 @@ import (
 	"log"
 	"net/http"
 	"strings"
+//    "fmt"
 
 	"github.com/google/uuid"
 )
 
 type Game struct {
-	SessionId string       `json:"session_id"`
-	GameBoard *board.Board `json:"game_board"`
+	SessionId string        `json:"session_id"`
+	GameBoard *board.Board   `json:"game_board"`
 }
 
 var games = make(map[string]*Game)
@@ -32,9 +33,10 @@ func gameHandler(w http.ResponseWriter, r *http.Request) {
 		if sessionId != "" {
 			body := games[sessionId]
 			encodeJSONResponse(w, body)
+            return
 		}
 		encodeJSONResponse(w, games)
-		return
+        return
 	case "POST":
 		var p ShotData
 
@@ -67,7 +69,7 @@ func createGame() string {
 	gameBoard := board.NewBoard()
 	gameBoard.PlaceShips()
 
-	games[sessionId] = &Game{sessionId, gameBoard}
+    games[sessionId] = &Game{sessionId, gameBoard}
 
 	return sessionId
 }

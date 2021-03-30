@@ -21,7 +21,7 @@
     </body>
     <script>
         var session_id = {{.}};
-        var url = "http://localhost:3001/game/" + session_id
+        var url = "http://" + window.location.host + "/game/" + session_id
         
         function load() {
             fetch(url)
@@ -29,6 +29,7 @@
                     return res.json() 
                 })
                 .then(function(data) { 
+                    console.log({ data: data })
                     renderGrid(data.game_board)
                 })
                 .catch(function(err) {
@@ -44,6 +45,7 @@
             }
 
             var data = { x: x, y: y, session_id: session_id }
+            console.log(data)
 
             fetch(url, {
                 method: 'POST',
