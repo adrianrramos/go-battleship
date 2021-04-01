@@ -40,5 +40,3 @@ func main() {
 
 	wg.Wait()
 }
-
-
